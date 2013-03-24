@@ -73,6 +73,7 @@ CFGFUN(bar_tray_output, const char *output);
 CFGFUN(bar_color_single, const char *colorclass, const char *color);
 CFGFUN(bar_status_command, const char *command);
 CFGFUN(bar_workspace_buttons, const char *value);
+CFGFUN(bar_separator_line, const char *value);
 CFGFUN(bar_finish);
 
 #endif

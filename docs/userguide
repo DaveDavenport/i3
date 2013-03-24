@@ -1146,6 +1146,24 @@ bar {
 }
 --------------------
 
+=== Separator line
+
+Shows a separator line between the i3bar and the workspace.
+
+The default is not show the line.
+
+*Syntax*:
+--------------------------
+separator_line <yes|no>
+--------------------------
+
+*Example*:
+--------------------
+bar {
+    separator_line yes
+}
+--------------------
+
 === Colors
 
 As with i3, colors are in HTML hex format (#rrggbb). The following colors can

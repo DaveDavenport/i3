@@ -351,6 +351,7 @@ state BAR:
   'mode'              -> BAR_MODE
   'modifier'          -> BAR_MODIFIER
   'position'          -> BAR_POSITION
+  'separator_line'    -> BAR_SEPARATOR_LINE
   'output'            -> BAR_OUTPUT
   'tray_output'       -> BAR_TRAY_OUTPUT
   'font'              -> BAR_FONT
@@ -404,6 +405,10 @@ state BAR_FONT:
 state BAR_WORKSPACE_BUTTONS:
   value = word
       -> call cfg_bar_workspace_buttons($value); BAR
+
+state BAR_SEPARATOR_LINE:
+    value = word
+    -> call cfg_bar_separator_line($value); BAR
 
 state BAR_VERBOSE:
   value = word

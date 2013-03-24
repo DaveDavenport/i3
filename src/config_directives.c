@@ -545,6 +545,9 @@ CFGFUN(bar_status_command, const char *command) {
 CFGFUN(bar_workspace_buttons, const char *value) {
     current_bar.hide_workspace_buttons = !eval_boolstr(value);
 }
+CFGFUN(bar_separator_line, const char *value) {
+    current_bar.separator_line = eval_boolstr(value);
+}
 
 CFGFUN(bar_finish) {
     DLOG("\t new bar configuration finished, saving.\n");

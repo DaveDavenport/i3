@@ -30,6 +30,7 @@ typedef struct config_t {
     char         *fontname;
     char         *tray_output;
     int          num_outputs;
+    int          separator_line;
     char         **outputs;
 } config_t;
 

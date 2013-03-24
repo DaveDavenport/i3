@@ -261,6 +261,9 @@ struct Barconfig {
      * zero. */
     bool hide_workspace_buttons;
 
+    /** Draw an extra line separating the bar fromthe rest. */
+    bool separator_line;
+
     /** Enable verbose mode? Useful for debugging purposes. */
     bool verbose;
 

@@ -661,6 +661,9 @@ IPC_HANDLER(get_bar_config) {
         ystr("workspace_buttons");
         y(bool, !config->hide_workspace_buttons);
 
+        ystr("separator_line");
+        y(bool, config->separator_line);
+
         ystr("verbose");
         y(bool, config->verbose);
 

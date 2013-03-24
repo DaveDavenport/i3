@@ -197,6 +197,12 @@ static int config_boolean_cb(void *params_, int val) {
         return 1;
     }
 
+    if (!strcmp(cur_key, "separator_line")) {
+        DLOG("separator_line = %d\n", val);
+        config.separator_line = val;
+        return 1;
+    }
+
     return 0;
 }
 

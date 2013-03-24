@@ -495,6 +495,8 @@ font (string)::
 	The font to use for text on the bar.
 workspace_buttons (boolean)::
 	Display workspace buttons or not? Defaults to true.
+separator_line (boolean)::
+	Display a line separating the i3bar and the workspace? Defaults to false.
 verbose (boolean)::
 	Should the bar enable verbose output for debugging? Defaults to false.
 colors (map)::

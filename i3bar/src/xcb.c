@@ -33,6 +33,8 @@
 #include "common.h"
 #include "libi3.h"
 
+#define BAR_EXTRA_HEIGHT 6
+
 /* We save the Atoms in an easy to access array, indexed by an enum */
 enum {
     #define ATOM_DO(name) name,
@@ -237,9 +239,9 @@ void unhide_bars(void) {
         values[0] = walk->rect.x;
         if (config.position == POS_TOP)
             values[1] = walk->rect.y;
-        else values[1] = walk->rect.y + walk->rect.h - font.height - 6;
+        else values[1] = walk->rect.y + walk->rect.h - font.height - BAR_EXTRA_HEIGHT- (config.separator_line?1:0);
         values[2] = walk->rect.w;
-        values[3] = font.height + 6;
+        values[3] = font.height + BAR_EXTRA_HEIGHT+(config.separator_line?1:0);
         values[4] = XCB_STACK_MODE_ABOVE;
         DLOG("Reconfiguring Window for output %s to %d,%d\n", walk->name, values[0], values[1]);
         cookie = xcb_configure_window_checked(xcb_connection,
@@ -1344,8 +1346,8 @@ void reconfig_windows(void) {
                                                                      root_screen->root_depth,
                                                                      walk->bar,
                                                                      xcb_root,
-                                                                     walk->rect.x, walk->rect.y + walk->rect.h - font.height - 6,
-                                                                     walk->rect.w, font.height + 6,
+                                                                     walk->rect.x, walk->rect.y + walk->rect.h - font.height - BAR_EXTRA_HEIGHT-(config.separator_line?1:0),
+                                                                     walk->rect.w, font.height + BAR_EXTRA_HEIGHT+(config.separator_line?1:0),
                                                                      0,
                                                                      XCB_WINDOW_CLASS_INPUT_OUTPUT,
                                                                      root_screen->root_visual,
@@ -1419,12 +1421,12 @@ void reconfig_windows(void) {
                 case POS_NONE:
                     break;
                 case POS_TOP:
-                    strut_partial.top = font.height + 6;
+                    strut_partial.top = font.height + BAR_EXTRA_HEIGHT+(config.separator_line?1:0);
                     strut_partial.top_start_x = walk->rect.x;
                     strut_partial.top_end_x = walk->rect.x + walk->rect.w;
                     break;
                 case POS_BOT:
-                    strut_partial.bottom = font.height + 6;
+                    strut_partial.bottom = font.height + BAR_EXTRA_HEIGHT+(config.separator_line?1:0);
                     strut_partial.bottom_start_x = walk->rect.x;
                     strut_partial.bottom_end_x = walk->rect.x + walk->rect.w;
                     break;
@@ -1478,9 +1480,9 @@ void reconfig_windows(void) {
                    XCB_CONFIG_WINDOW_HEIGHT |
                    XCB_CONFIG_WINDOW_STACK_MODE;
             values[0] = walk->rect.x;
-            values[1] = walk->rect.y + walk->rect.h - font.height - 6;
+            values[1] = walk->rect.y + walk->rect.h - font.height - BAR_EXTRA_HEIGHT-(config.separator_line?1:0);
             values[2] = walk->rect.w;
-            values[3] = font.height + 6;
+            values[3] = font.height + BAR_EXTRA_HEIGHT+(config.separator_line?1:0);
             values[4] = XCB_STACK_MODE_ABOVE;
 
             DLOG("Destroying buffer for output %s\n", walk->name);
@@ -1539,12 +1541,47 @@ void draw_bars(bool unhide) {
                       outputs_walk->bargc,
                       XCB_GC_FOREGROUND,
                       &color);
-        xcb_rectangle_t rect = { 0, 0, outputs_walk->rect.w, font.height + 6 };
+        xcb_rectangle_t rect = { 0, 0, outputs_walk->rect.w, font.height + BAR_EXTRA_HEIGHT +(config.separator_line?1:0)};
         xcb_poly_fill_rectangle(xcb_connection,
                                 outputs_walk->buffer,
                                 outputs_walk->bargc,
                                 1,
                                 &rect);
+
+        /* Draw line at bottom */
+        color = colors.sep_fg;
+        xcb_change_gc(xcb_connection,
+                      outputs_walk->bargc,
+                      XCB_GC_FOREGROUND,
+                      &color);
+
+        if(config.separator_line) {
+            switch  (config.position) {
+                case POS_TOP:
+                    xcb_poly_line(xcb_connection, 
+                            XCB_COORD_MODE_ORIGIN,
+                            outputs_walk->buffer,
+                            outputs_walk->bargc,
+                            2, 
+                            (xcb_point_t[]){ { 0, font.height+BAR_EXTRA_HEIGHT},
+                            { outputs_walk->rect.w, font.height+BAR_EXTRA_HEIGHT} }
+                            );
+                    break;
+                case POS_BOT:
+                    xcb_poly_line(xcb_connection, 
+                            XCB_COORD_MODE_ORIGIN,
+                            outputs_walk->buffer,
+                            outputs_walk->bargc,
+                            2, 
+                            (xcb_point_t[]){ { 0, 0},
+                            { outputs_walk->rect.w, 0} }
+                            );
+                    break;
+                case POS_NONE:
+                    break;
+            }
+        }
+
 
         if (!TAILQ_EMPTY(&statusline_head)) {
             DLOG("Printing statusline!\n");
