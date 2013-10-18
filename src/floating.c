@@ -315,6 +315,8 @@ void floating_disable(Con *con, bool automatic) {
         return;
     }
 
+    const bool set_focus = (con == focused);
+
     Con *ws = con_get_workspace(con);
 
     /* 1: detach from parent container */
@@ -344,8 +346,9 @@ void floating_disable(Con *con, bool automatic) {
     con_attach(con, con->parent, false);
 
     con_fix_percent(con->parent);
-    // TODO: don’t influence focus handling when Con was not focused before.
-    con_focus(con);
+
+    if (set_focus)
+        con_focus(con);
 }
 
 /*
@@ -659,11 +662,7 @@ void drag_pointer(Con *con, const xcb_button_press_event_t *event, xcb_window_t
 void floating_reposition(Con *con, Rect newrect) {
     /* Sanity check: Are the new coordinates on any output? If not, we
      * ignore that request. */
-    Output *output = get_output_containing(
-        newrect.x + (newrect.width / 2),
-        newrect.y + (newrect.height / 2));
-
-    if (!output) {
+    if (!contained_by_output(newrect)) {
         ELOG("No output found at destination coordinates. Not repositioning.\n");
         return;
     }

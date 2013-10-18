@@ -446,6 +446,16 @@ struct ConfigResult *parse_config(const char *input, struct context *context) {
                 }
             }
 
+            if (strcmp(token->name, "line") == 0) {
+               while (*walk != '\0' && *walk != '\n' && *walk != '\r')
+                  walk++;
+               next_state(token);
+               token_handled = true;
+               linecnt++;
+               walk++;
+               break;
+            }
+
             if (strcmp(token->name, "end") == 0) {
                 //printf("checking for end: *%s*\n", walk);
                 if (*walk == '\0' || *walk == '\n' || *walk == '\r') {
@@ -1060,7 +1070,7 @@ void parse_file(const char *f) {
         char *argv[] = {
             NULL, /* will be replaced by the executable path */
             "-f",
-            config.font.pattern,
+            (config.font.pattern ? config.font.pattern : "fixed"),
             "-t",
             (context->has_errors ? "error" : "warning"),
             "-m",

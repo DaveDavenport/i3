@@ -235,7 +235,12 @@ bool tree_close(Con *con, kill_window_t kill_window, bool dont_kill_parent, bool
             return false;
         } else {
             xcb_void_cookie_t cookie;
-            /* un-parent the window */
+            /* Ignore any further events by clearing the event mask,
+             * unmap the window,
+             * then reparent it to the root window. */
+            xcb_change_window_attributes(conn, con->window->id,
+                    XCB_CW_EVENT_MASK, (uint32_t[]){ XCB_NONE });
+            xcb_unmap_window(conn, con->window->id);
             cookie = xcb_reparent_window(conn, con->window->id, root, 0, 0);
 
             /* Ignore X11 errors for the ReparentWindow request.
@@ -697,6 +702,8 @@ void tree_flatten(Con *con) {
      * the con’s parent to be redundant */
     if (!con_is_split(con) ||
         !con_is_split(child) ||
+        (con->layout != L_SPLITH && con->layout != L_SPLITV) ||
+        (child->layout != L_SPLITH && child->layout != L_SPLITV) ||
         con_orientation(con) == con_orientation(child) ||
         con_orientation(child) != con_orientation(parent))
         goto recurse;

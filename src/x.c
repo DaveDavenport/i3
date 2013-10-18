@@ -350,7 +350,7 @@ void x_draw_decoration(Con *con) {
     p->con_deco_rect = con->deco_rect;
     p->background = config.client.background;
     p->con_is_leaf = con_is_leaf(con);
-    p->parent_orientation = con_orientation(parent);
+    p->parent_layout = con->parent->layout;
 
     if (con->deco_render_params != NULL &&
         (con->window == NULL || !con->window->name_x_changed) &&
@@ -445,10 +445,10 @@ void x_draw_decoration(Con *con) {
             TAILQ_PREV(con, nodes_head, nodes) == NULL &&
             con->parent->type != CT_FLOATING_CON) {
             xcb_change_gc(conn, con->pm_gc, XCB_GC_FOREGROUND, (uint32_t[]){ p->color->indicator });
-            if (p->parent_orientation == HORIZ)
+            if (p->parent_layout == L_SPLITH)
                 xcb_poly_fill_rectangle(conn, con->pixmap, con->pm_gc, 1, (xcb_rectangle_t[]){
                         { r->width + br.width + br.x, br.y, r->width, r->height + br.height } });
-            else
+            else if (p->parent_layout == L_SPLITV)
                 xcb_poly_fill_rectangle(conn, con->pixmap, con->pm_gc, 1, (xcb_rectangle_t[]){
                         { br.x, r->height + br.height + br.y, r->width - (2 * br.x), r->height } });
         }
@@ -1053,6 +1053,16 @@ void x_set_name(Con *con, const char *name) {
 }
 
 /*
+ * Set up the I3_SHMLOG_PATH atom.
+ *
+ */
+void update_shmlog_atom() {
+    xcb_change_property(conn, XCB_PROP_MODE_REPLACE, root,
+            A_I3_SHMLOG_PATH, A_UTF8_STRING, 8,
+            strlen(shmlogname), shmlogname);
+}
+
+/*
  * Sets up i3 specific atoms (I3_SOCKET_PATH and I3_CONFIG_PATH)
  *
  */
@@ -1064,8 +1074,7 @@ void x_set_i3_atoms(void) {
     xcb_change_property(conn, XCB_PROP_MODE_REPLACE, root, A_I3_PID, XCB_ATOM_CARDINAL, 32, 1, &pid);
     xcb_change_property(conn, XCB_PROP_MODE_REPLACE, root, A_I3_CONFIG_PATH, A_UTF8_STRING, 8,
                         strlen(current_configpath), current_configpath);
-    xcb_change_property(conn, XCB_PROP_MODE_REPLACE, root, A_I3_SHMLOG_PATH, A_UTF8_STRING, 8,
-                        strlen(shmlogname), shmlogname);
+    update_shmlog_atom();
 }
 
 /*
