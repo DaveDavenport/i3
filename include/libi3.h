@@ -72,23 +72,33 @@ struct Font {
 /* Since this file also gets included by utilities which don’t use the i3 log
  * infrastructure, we define a fallback. */
 #if !defined(LOG)
-void verboselog(char *fmt, ...);
+void verboselog(char *fmt, ...)
+    __attribute__ ((format (printf, 1, 2)));
 #define LOG(fmt, ...) verboselog("[libi3] " __FILE__ " " fmt, ##__VA_ARGS__)
 #endif
 #if !defined(ELOG)
-void errorlog(char *fmt, ...);
+void errorlog(char *fmt, ...)
+    __attribute__ ((format (printf, 1, 2)));
 #define ELOG(fmt, ...) errorlog("[libi3] ERROR: " fmt, ##__VA_ARGS__)
+#endif
+#if !defined(DLOG)
+void debuglog(char *fmt, ...)
+    __attribute__ ((format (printf, 1, 2)));
+#define DLOG(fmt, ...) debuglog("%s:%s:%d - " fmt, I3__FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 #endif
 
 /**
  * Try to get the contents of the given atom (for example I3_SOCKET_PATH) from
  * the X11 root window and return NULL if it doesn’t work.
  *
+ * If the provided XCB connection is NULL, a new connection will be
+ * established.
+ *
  * The memory for the contents is dynamically allocated and has to be
  * free()d by the caller.
  *
  */
-char *root_atom_contents(const char *atomname);
+char *root_atom_contents(const char *atomname, xcb_connection_t *provided_conn, int screen);
 
 /**
  * Safe-wrapper around malloc which exits if malloc returns NULL (meaning that
@@ -369,7 +379,8 @@ char *get_process_filename(const char *prefix);
  *
  * The implementation follows http://stackoverflow.com/a/933996/712014
  *
+ * Returned value must be freed by the caller.
  */
-const char *get_exe_path(const char *argv0);
+char *get_exe_path(const char *argv0);
 
 #endif

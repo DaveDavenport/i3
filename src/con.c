@@ -569,8 +569,9 @@ void con_fix_percent(Con *con) {
 }
 
 /*
- * Toggles fullscreen mode for the given container. Fullscreen mode will not be
- * entered when there already is a fullscreen container on this workspace.
+ * Toggles fullscreen mode for the given container. If there already is a
+ * fullscreen container on this workspace, fullscreen will be disabled and then
+ * enabled for the container the user wants to have in fullscreen mode.
  *
  */
 void con_toggle_fullscreen(Con *con, int fullscreen_mode) {
@@ -1354,8 +1355,9 @@ static void con_on_remove_child(Con *con) {
      * not be closed when the last child was removed */
     if (con->type == CT_OUTPUT ||
         con->type == CT_ROOT ||
-        con->type == CT_DOCKAREA) {
-        DLOG("not handling, type = %d\n", con->type);
+        con->type == CT_DOCKAREA ||
+        (con->parent != NULL && con->parent->type == CT_OUTPUT)) {
+        DLOG("not handling, type = %d, name = %s\n", con->type, con->name);
         return;
     }
 

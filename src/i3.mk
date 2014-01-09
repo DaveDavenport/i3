@@ -54,12 +54,12 @@ src/config_parser.o: src/config_parser.c $(i3_HEADERS_DEP) i3-config-parser.stam
 
 i3-command-parser.stamp: generate-command-parser.pl parser-specs/commands.spec
 	echo "[i3] Generating command parser"
-	(cd include; ../generate-command-parser.pl --input=../parser-specs/commands.spec --prefix=command)
+	(cd $(TOPDIR)/include; ../generate-command-parser.pl --input=../parser-specs/commands.spec --prefix=command)
 	touch $@
 
 i3-config-parser.stamp: generate-command-parser.pl parser-specs/config.spec
 	echo "[i3] Generating config parser"
-	(cd include; ../generate-command-parser.pl --input=../parser-specs/config.spec --prefix=config)
+	(cd $(TOPDIR)/include; ../generate-command-parser.pl --input=../parser-specs/config.spec --prefix=config)
 	touch $@
 
 i3: libi3.a $(i3_OBJECTS)
@@ -74,6 +74,7 @@ install-i3: i3
 	$(INSTALL) -d -m 0755 $(DESTDIR)$(PREFIX)/share/xsessions
 	$(INSTALL) -d -m 0755 $(DESTDIR)$(PREFIX)/share/applications
 	$(INSTALL) -m 0755 i3 $(DESTDIR)$(PREFIX)/bin/
+	$(LN) -sf i3 $(DESTDIR)$(PREFIX)/bin/i3-with-shmlog
 	$(INSTALL) -m 0755 i3-migrate-config-to-v4 $(DESTDIR)$(PREFIX)/bin/
 	$(INSTALL) -m 0755 i3-sensible-editor $(DESTDIR)$(PREFIX)/bin/
 	$(INSTALL) -m 0755 i3-sensible-pager $(DESTDIR)$(PREFIX)/bin/
@@ -82,6 +83,7 @@ install-i3: i3
 	test -e $(DESTDIR)$(SYSCONFDIR)/i3/config || $(INSTALL) -m 0644 i3.config $(DESTDIR)$(SYSCONFDIR)/i3/config
 	test -e $(DESTDIR)$(SYSCONFDIR)/i3/config.keycodes || $(INSTALL) -m 0644 i3.config.keycodes $(DESTDIR)$(SYSCONFDIR)/i3/config.keycodes
 	$(INSTALL) -m 0644 i3.xsession.desktop $(DESTDIR)$(PREFIX)/share/xsessions/i3.desktop
+	$(INSTALL) -m 0644 i3-with-shmlog.xsession.desktop $(DESTDIR)$(PREFIX)/share/xsessions/i3.desktop
 	$(INSTALL) -m 0644 i3.applications.desktop $(DESTDIR)$(PREFIX)/share/applications/i3.desktop
 	$(INSTALL) -m 0644 include/i3/ipc.h $(DESTDIR)$(PREFIX)/include/i3/
 

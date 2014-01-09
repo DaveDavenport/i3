@@ -688,6 +688,8 @@ IPC_HANDLER(get_bar_config) {
 
         ystr("separator_line");
         y(bool, config->separator_line);
+        ystr("binding_mode_indicator");
+        y(bool, !config->hide_binding_mode_indicator);
 
         ystr("verbose");
         y(bool, config->verbose);

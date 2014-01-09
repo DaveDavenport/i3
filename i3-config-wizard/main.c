@@ -420,7 +420,7 @@ static char *rewrite_binding(const char *input) {
 
 
 /*
- * Having verboselog() and errorlog() is necessary when using libi3.
+ * Having verboselog(), errorlog() and debuglog() is necessary when using libi3.
  *
  */
 void verboselog(char *fmt, ...) {
@@ -437,6 +437,9 @@ void errorlog(char *fmt, ...) {
     va_start(args, fmt);
     vfprintf(stderr, fmt, args);
     va_end(args);
+}
+
+void debuglog(char *fmt, ...) {
 }
 
 /*
@@ -791,16 +794,16 @@ int main(int argc, char *argv[]) {
     close(fd);
     unlink(config_path);
 
+    int screen;
+    if ((conn = xcb_connect(NULL, &screen)) == NULL ||
+        xcb_connection_has_error(conn))
+        errx(1, "Cannot open display\n");
+
     if (socket_path == NULL)
-        socket_path = root_atom_contents("I3_SOCKET_PATH");
+        socket_path = root_atom_contents("I3_SOCKET_PATH", conn, screen);
 
     if (socket_path == NULL)
         socket_path = "/tmp/i3-ipc.sock";
-
-    int screens;
-    if ((conn = xcb_connect(NULL, &screens)) == NULL ||
-        xcb_connection_has_error(conn))
-        errx(1, "Cannot open display\n");
 
     keysyms = xcb_key_symbols_alloc(conn);
     xcb_get_modifier_mapping_cookie_t modmap_cookie;
@@ -813,7 +816,7 @@ int main(int argc, char *argv[]) {
     #include "atoms.xmacro"
     #undef xmacro
 
-    root_screen = xcb_aux_get_screen(conn, screens);
+    root_screen = xcb_aux_get_screen(conn, screen);
     root = root_screen->root;
 
     if (!(modmap_reply = xcb_get_modifier_mapping_reply(conn, modmap_cookie, NULL)))
